@@ -51,6 +51,14 @@ class TestTicTacGame(unittest.TestCase):
         self.assertTrue(self.game.is_end())
         self.assertEqual(self.game.get_result(), "Победил: Player1")
 
+    def test_wrong_input(self):
+        with self.assertRaises(ValueError):
+            self.game.move("a3")
+        with self.assertRaises(ValueError):
+            self.game.move("111")
+        with self.assertRaises(ValueError):
+            self.game.move("-12")
+
     def tearDown(self) -> None:
         pass
 

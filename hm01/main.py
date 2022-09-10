@@ -1,3 +1,8 @@
+"""
+This is main program to run tic_tac game
+"""
+
+
 from tic_tac import TicTacGame
 
 if __name__ == "__main__":

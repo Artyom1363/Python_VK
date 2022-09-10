@@ -61,7 +61,7 @@ class TicTacGame:
             x, y = self.__separate_vals(int(value))
             self.field[y - 1][x - 1] = sym
         else:
-            raise Exception('Wrong input value')
+            raise ValueError('Wrong input value')
 
     def is_end(self) -> bool:
         """
@@ -123,4 +123,3 @@ class TicTacGame:
         if len(set_of_syms) == 1 and next(iter(set_of_syms)) != '.':
             return True
         return False
-

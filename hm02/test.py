@@ -16,6 +16,7 @@ class TestParsingJson(unittest.TestCase):
             "name": fake.first_name(),
             "surname": fake.last_name(),
             "country": fake.country(),
+            "sentence": fake.sentence(nb_words=4, ext_word_list=['first', 'second', 'third', 'fourth']),
             "town": "Kovrov"
         }
         self.json_str = json.dumps(user_dict)
@@ -24,8 +25,8 @@ class TestParsingJson(unittest.TestCase):
     def test_parsing_json(self, keyword_handler_mock):
         keyword_handler_mock.return_value = None
 
-        parse_json(self.json_str, ["name", "surname", "town"],
-                   ["Larisa_", "Kovrov"],
+        parse_json(self.json_str, ["name", "surname", "town", "sentence", "something"],
+                   ["Somebody_", "Kovrov"],
                    json_parser.keyword_handler)
 
         self.assertTrue(keyword_handler_mock.called)

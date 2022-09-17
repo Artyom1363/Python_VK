@@ -1,13 +1,15 @@
 import unittest
-from unittest.mock import patch
-import json_parser
 import json
-from json_parser import parse_json
+from unittest.mock import patch
 from faker import Faker
+import json_parser
+from json_parser import parse_json
 
 
 class TestParsingJson(unittest.TestCase):
-
+    """
+    This class tests parse_json function from json_parser
+    """
     def setUp(self):
         fake = Faker()
         user_dict = {
@@ -22,7 +24,10 @@ class TestParsingJson(unittest.TestCase):
     def test_parsing_json(self, keyword_handler_mock):
         keyword_handler_mock.return_value = None
 
-        parse_json(self.json_str, ["name", "surname", "town"], ["Larisa_", "Kovrov"], json_parser.keyword_handler)
+        parse_json(self.json_str, ["name", "surname", "town"],
+                   ["Larisa_", "Kovrov"],
+                   json_parser.keyword_handler)
+
         self.assertTrue(keyword_handler_mock.called)
         self.assertEqual(
             [unittest.mock.call("Kovrov")],

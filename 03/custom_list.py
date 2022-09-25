@@ -13,8 +13,8 @@ class CustomList(list):
 
     def __add__(self, other):
         return_list = CustomList()
-        for a, b in zip_longest(self, other, fillvalue=0):
-            return_list.append(a + b)
+        for self_el, other_el in zip_longest(self, other, fillvalue=0):
+            return_list.append(self_el + other_el)
         return return_list
 
     def __radd__(self, other):
@@ -22,14 +22,14 @@ class CustomList(list):
 
     def __sub__(self, other):
         return_list = CustomList()
-        for a, b in zip_longest(self, other, fillvalue=0):
-            return_list.append(a - b)
+        for self_el, other_el in zip_longest(self, other, fillvalue=0):
+            return_list.append(self_el - other_el)
         return return_list
 
     def __rsub__(self, other):
         return_list = CustomList()
-        for a, b in zip_longest(self, other, fillvalue=0):
-            return_list.append(b - a)
+        for self_el, other_el in zip_longest(self, other, fillvalue=0):
+            return_list.append(other_el - self_el)
         return return_list
 
     def __str__(self) -> str:

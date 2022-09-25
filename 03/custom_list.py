@@ -3,6 +3,7 @@ this module provide custom list
 """
 from itertools import zip_longest
 
+
 class CustomList(list):
     """
     this is custom list

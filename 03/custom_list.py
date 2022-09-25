@@ -8,9 +8,6 @@ class CustomList(list):
     """
     this is custom list
     """
-    def __eq__(self, other) -> bool:
-        return sum(self) == sum(other)
-
     def __add__(self, other):
         return_list = CustomList()
         for self_el, other_el in zip_longest(self, other, fillvalue=0):
@@ -34,3 +31,21 @@ class CustomList(list):
 
     def __str__(self) -> str:
         return super().__str__() + " sum: " + str(sum(self))
+
+    def __lt__(self, other) -> bool:
+        return sum(self) < sum(other)
+
+    def __le__(self, other) -> bool:
+        return sum(self) <= sum(other)
+
+    def __eq__(self, other) -> bool:
+        return sum(self) == sum(other)
+
+    def __ne__(self, other) -> bool:
+        return sum(self) != sum(other)
+
+    def __gt__(self, other) -> bool:
+        return sum(self) > sum(other)
+
+    def __ge__(self, other) -> bool:
+        return sum(self) >= sum(other)

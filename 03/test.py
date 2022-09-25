@@ -25,10 +25,17 @@ class TestCustomList(unittest.TestCase):
         self.assertEqual(self.array - [], self.array)
         self.assertEqual([] - self.array, CustomList([-1, -2, -3]))
 
-    def test_equal(self):
-        self.assertTrue(self.array == [3, 2, 1])
-        self.assertTrue(self.array == [6])
+    def test_comparison_operators(self):
+        self.assertGreater(self.array, [1, 1, 1])
+        self.assertGreaterEqual(self.array, [3, 2, 1])
+        self.assertGreaterEqual(self.array, [2, 2, 1])
         self.assertEqual(self.array, [3, 2, 1])
+        self.assertEqual(self.array, [6])
+        self.assertEqual([3, 2, 1], self.array)
+        self.assertLessEqual(self.array, [1, 2, 3])
+        self.assertLessEqual(self.array, [1, 2, 4])
+        self.assertLess(self.array, [1, 2, 4])
+        self.assertLess([1, 2, 2], self.array)
 
     def test_to_str(self):
         self.assertEqual(str(self.array), "[1, 2, 3] sum: 6")

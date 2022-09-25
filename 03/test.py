@@ -18,11 +18,11 @@ class TestCustomList(unittest.TestCase):
     
     def test_subtraction(self):
         self.assertEqual(self.array - [1, 2], CustomList([0, 0, 3]))
-        self.assertEqual([1, 2] - self.array, CustomList([0, 0, 3]))
+        self.assertEqual([1, 2] - self.array, CustomList([0, 0, -3]))
         self.assertEqual(self.array - [1, 2, 3, 4], CustomList([0, 0, 0, -4]))
         self.assertEqual([1, 2, 3, 4] - self.array, CustomList([0, 0, 0, 4]))
         self.assertEqual(self.array - [], self.array)
-        self.assertEqual([] - self.array, CustomList([1, 2, 3]))
+        self.assertEqual([] - self.array, CustomList([-1, -2, -3]))
     
     def test_equal(self):
         self.assertTrue(self.array == [3, 2, 1])

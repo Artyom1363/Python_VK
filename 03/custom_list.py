@@ -1,7 +1,7 @@
 """
 this module provide custom list
 """
-
+from itertools import zip_longest
 
 class CustomList(list):
     """
@@ -11,44 +11,25 @@ class CustomList(list):
         return sum(self) == sum(other)
 
     def __add__(self, other):
-        self_copy = self.copy()
-        len_self_copy = len(self_copy)
-        for i, value in enumerate(other):
-            if i < len_self_copy:
-                self_copy[i] += value
-            else:
-                self_copy.append(value)
-        return self_copy
+        return_list = CustomList()
+        for a, b in zip_longest(self, other, fillvalue=0):
+            return_list.append(a + b)
+        return return_list
 
     def __radd__(self, other):
-        self_copy = self.copy()
-        len_self_copy = len(self_copy)
-        for i, value in enumerate(other):
-            if i < len_self_copy:
-                self_copy[i] += value
-            else:
-                self_copy.append(value)
-        return self_copy
+        return self.__class__.__add__(self, other)
 
     def __sub__(self, other):
-        self_copy = self.copy()
-        len_self_copy = len(self_copy)
-        for i, value in enumerate(other):
-            if i < len_self_copy:
-                self_copy[i] -= value
-            else:
-                self_copy.append(-value)
-        return self_copy
+        return_list = CustomList()
+        for a, b in zip_longest(self, other, fillvalue=0):
+            return_list.append(a - b)
+        return return_list
 
     def __rsub__(self, other):
-        self_copy = self.copy()
-        len_self_copy = len(self_copy)
-        for i, value in enumerate(other):
-            if i < len_self_copy:
-                self_copy[i] = value - self_copy[i]
-            else:
-                self_copy.append(value)
-        return self_copy
+        return_list = CustomList()
+        for a, b in zip_longest(self, other, fillvalue=0):
+            return_list.append(b - a)
+        return return_list
 
     def __str__(self) -> str:
         return super().__str__() + " sum: " + str(sum(self))

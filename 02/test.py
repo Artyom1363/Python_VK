@@ -16,7 +16,9 @@ class TestParsingJson(unittest.TestCase):
             "name": fake.first_name(),
             "surname": fake.last_name(),
             "country": fake.country(),
-            "sentence": fake.sentence(nb_words=4, ext_word_list=['first', 'second', 'third', 'fourth']),
+            "sentence": fake.sentence(nb_words=4, ext_word_list=[
+                                        'first', 'second', 'third', 'fourth'
+                                    ]),
             "town": "Kovrov"
         }
         self.json_str = json.dumps(user_dict)
@@ -25,7 +27,8 @@ class TestParsingJson(unittest.TestCase):
     def test_parsing_json(self, keyword_handler_mock):
         keyword_handler_mock.return_value = None
 
-        parse_json(self.json_str, ["name", "surname", "town", "sentence", "something"],
+        parse_json(self.json_str,
+                   ["name", "surname", "town", "sentence", "something"],
                    ["Somebody_", "Kovrov"],
                    json_parser.keyword_handler)
 
@@ -34,6 +37,15 @@ class TestParsingJson(unittest.TestCase):
             [unittest.mock.call("Kovrov")],
             keyword_handler_mock.mock_calls
         )
+
+    def test_parsing_json_bad_keyword_callback(self):
+        with self.assertRaises(TypeError):
+            parse_json(self.json_str, [], [], "str")
+
+        self.assertIsNone(parse_json(self.json_str, [
+                                    "name", "surname", "town",
+                                    "sentence", "something"],
+                                    ["Somebody_", "Kovrov"]))
 
 
 if __name__ == '__main__':

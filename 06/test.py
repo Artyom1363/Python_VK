@@ -1,7 +1,7 @@
 import unittest
 import threading
 from unittest import mock
-from server import CustomHTMLParser, get_urls, server
+from server import CustomHTMLParser, process_tasks, server
 
 
 class TestCustomHTMLParser(unittest.TestCase):
@@ -43,7 +43,8 @@ class TestCustomHTMLParser(unittest.TestCase):
 
 class TestGetUrls(unittest.TestCase):
 
-    def test_get_urls(self):
+    @mock.patch("server.print")
+    def test_process_tasks(self, print_mock):
         # tasks_queue.get = mock.Mock()
         url = 'url'
 
@@ -58,17 +59,14 @@ class TestGetUrls(unittest.TestCase):
 
         html_parser = mock.Mock()
         html_parser.feed = mock.Mock()
+        html_parser.get_stat = mock.Mock(return_value=2)
 
         html_parser.get_most_common = mock.Mock(side_effect=[{"word": 1}, Exception("Test")])
 
         with mock.patch("server.fetch_url") as fetch_url_mock:
             html_value = "<p>word<p>"
             fetch_url_mock.return_value = html_value
-            get_urls(tasks_queue, worker_state, html_parser)
-            # print(f"{fetch_url_mock.mock_calls=}")
-            # print(f"{client.send.mock_calls=}")
-            # print(f"{tasks_queue.mock_calls=}")
-            # print(f"{html_parser.get_most_common.mock_calls=}")
+            process_tasks(tasks_queue, worker_state, html_parser)
             self.assertEqual(fetch_url_mock.mock_calls, [mock.call(url), mock.call(url)])
             self.assertEqual(worker_state.is_on.call_count, 3)
             self.assertEqual(tasks_queue.mock_calls, [mock.call.get(timeout=5), mock.call.task_done(),
@@ -78,11 +76,17 @@ class TestGetUrls(unittest.TestCase):
             self.assertEqual(html_parser.get_most_common.mock_calls, [mock.call(), mock.call()])
             self.assertEqual(client.send.mock_calls, [mock.call(b"url: {'word': 1}"),
                                                       mock.call(b"Error, url was not fetched")])
+            self.assertEqual(print_mock.mock_calls,
+                             [mock.call("Server statistics: ", " server processed 2 times!"),
+                              mock.call("Error while processing urls in get_urls")])
 
 
 class TestServer(unittest.TestCase):
 
-    def test_server(self):
+    @mock.patch("socket.socket")
+    @mock.patch("server.time")
+    @mock.patch("server.print")
+    def test_server(self, print_mock, time_mock, create_socket):
         socket = mock.Mock()
         client = mock.Mock()
         client.recv = mock.Mock(return_value=b"test url")
@@ -90,27 +94,32 @@ class TestServer(unittest.TestCase):
         socket.accept = mock.Mock(return_value=[client, address])
         tasks_queue = mock.Mock()
         tasks_queue.put = mock.Mock(side_effect=KeyboardInterrupt("test"))
-        with mock.patch("socket.socket") as create_socket:
-            with mock.patch("server.time") as time_mock:
-                # with mock.patch("server.print") as print_mock:
-                time_time_mock = mock.Mock(side_effect=[1, 2, 3])
-                time_sleep_mock = mock.Mock()
-                time_mock.time = time_time_mock
-                time_mock.sleep = time_sleep_mock
 
-                create_socket.return_value = socket
+        time_time_mock = mock.Mock(side_effect=[1, 2, 3])
+        time_sleep_mock = mock.Mock()
+        time_mock.time = time_time_mock
+        time_mock.sleep = time_sleep_mock
 
-                server(tasks_queue)
+        create_socket.return_value = socket
 
-                self.assertEqual(socket.mock_calls, [mock.call.bind(("", 15000)),
-                                                     mock.call.listen(5),
-                                                     mock.call.accept(),
-                                                     mock.call.close()])
-                self.assertEqual(tasks_queue.mock_calls, [mock.call.put(("test url", client))])
-                self.assertEqual(time_time_mock.mock_calls, [mock.call(),
-                                                             mock.call(),
-                                                             mock.call()])
-                self.assertEqual(time_sleep_mock.mock_calls, [mock.call(1)])
+        server(tasks_queue)
+
+        self.assertEqual(socket.mock_calls, [mock.call.bind(("", 15000)),
+                                             mock.call.listen(5),
+                                             mock.call.accept(),
+                                             mock.call.close()])
+        self.assertEqual(tasks_queue.mock_calls, [mock.call.put(("test url", client))])
+        self.assertEqual(time_time_mock.mock_calls, [mock.call(),
+                                                     mock.call(),
+                                                     mock.call()])
+        self.assertEqual(time_sleep_mock.mock_calls, [mock.call(1)])
+
+        self.assertEqual(print_mock.mock_calls[0:5], [mock.call("WAITING..."),
+                                                      mock.call("ACCEPTED"),
+                                                      mock.call("server: connection from", "address"),
+                                                      mock.call("KeyboardInterrupt in Server"),
+                                                      mock.call("Finishing tasks...")])
+        self.assertEqual(print_mock.call_count, 6)
 
 
 if __name__ == '__main__':

@@ -18,8 +18,9 @@ running = False
 class CustomHTMLParser(HTMLParser):
     number_of_calls = 0
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, lock, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.lock = lock
         self.words = []
         self.last_tag = ''
         self.tokenizer = RegexpTokenizer(r'\w+')
@@ -37,9 +38,9 @@ class CustomHTMLParser(HTMLParser):
         new_words = self.tokenizer.tokenize(data)
         self.words.extend(new_words)
 
-    def feed_with_counter(self, data, lock):
+    def feed(self, data):
         super().feed(data)
-        with lock:
+        with self.lock:
             CustomHTMLParser.number_of_calls += 1
 
     def get_most_common(self, quantity=10):
@@ -63,20 +64,20 @@ def get_urls(queue_, lock):
             # print(f"Got task from Queue, rest of tasks: COUNT {queue_.qsize()}\n", end="")
             try:
                 result = fetch_url(url)
-                html_parser = CustomHTMLParser()
-                html_parser.feed_with_counter(result, lock)
+                html_parser = CustomHTMLParser(lock)
+                html_parser.feed(result)
                 most_common_words = html_parser.get_most_common(5)
 
                 # print(f" words: {most_common_words}")
             except Exception:
                 answer_to_client = "Error, url was not fetched"
-                # print("Everything good!", f"{answer_to_client=}")
                 client.send(answer_to_client.encode())
+
                 print("Error while processing urls in get_urls")
             else:
                 answer_to_client = url + ": " + str(most_common_words)
-                # print("Everything good!", f"{answer_to_client=}")
                 client.send(answer_to_client.encode())
+
                 print("Server statistics: ", f" server processed {html_parser.get_stat()} times!")
             finally:
                 # print("finally in get urls")

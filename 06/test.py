@@ -7,10 +7,10 @@ from server import CustomHTMLParser, process_tasks, server
 class TestCustomHTMLParser(unittest.TestCase):
 
     def setUp(self) -> None:
-        with open("python3_wiki.html", "r") as file:
+        with open("python3_wiki.html", "r", encoding="UTF-8") as file:
             self.data_python = file.read()
 
-        with open("religion_wiki.html", "r") as file:
+        with open("religion_wiki.html", "r", encoding="UTF-8") as file:
             self.data_religion = file.read()
 
     def test_custom_html_parser(self):
@@ -57,24 +57,34 @@ class TestGetUrls(unittest.TestCase):
         html_parser.feed = mock.Mock()
         html_parser.get_stat = mock.Mock(return_value=2)
 
-        html_parser.get_most_common = mock.Mock(side_effect=[{"word": 1}, Exception("Test")])
+        html_parser.get_most_common = mock.Mock(
+            side_effect=[{"word": 1}, Exception("Test")])
 
         with mock.patch("server.fetch_url") as fetch_url_mock:
             html_value = "<p>word<p>"
             fetch_url_mock.return_value = html_value
             process_tasks(tasks_queue, worker_state, html_parser)
-            self.assertEqual(fetch_url_mock.mock_calls, [mock.call(url), mock.call(url)])
+            self.assertEqual(fetch_url_mock.mock_calls, [mock.call(url),
+                                                         mock.call(url)])
             self.assertEqual(worker_state.is_on.call_count, 3)
-            self.assertEqual(tasks_queue.mock_calls, [mock.call.get(timeout=5), mock.call.task_done(),
-                                                      mock.call.get(timeout=5), mock.call.task_done()])
-            self.assertEqual(html_parser.feed.mock_calls, [mock.call(html_value),
-                                                           mock.call(html_value)])
-            self.assertEqual(html_parser.get_most_common.mock_calls, [mock.call(), mock.call()])
-            self.assertEqual(client.send.mock_calls, [mock.call(b"url: {'word': 1}"),
-                                                      mock.call(b"Error, url was not fetched")])
+            self.assertEqual(tasks_queue.mock_calls, [mock.call.get(timeout=5),
+                                                      mock.call.task_done(),
+                                                      mock.call.get(timeout=5),
+                                                      mock.call.task_done()])
+            self.assertEqual(html_parser.feed.mock_calls,
+                             [mock.call(html_value),
+                              mock.call(html_value)])
+            self.assertEqual(html_parser.get_most_common.mock_calls,
+                             [mock.call(),
+                              mock.call()])
+            self.assertEqual(client.send.mock_calls,
+                             [mock.call(b"url: {'word': 1}"),
+                              mock.call(b"Error, url was not fetched")])
             self.assertEqual(print_mock.mock_calls,
-                             [mock.call("Server statistics: ", " server processed 2 times!"),
-                              mock.call("Error while processing urls in get_urls")])
+                             [mock.call("Server statistics: ",
+                                        " server processed 2 times!"),
+                              mock.call("Error while processing "
+                              "urls in get_urls")])
 
 
 class TestServer(unittest.TestCase):
@@ -104,17 +114,19 @@ class TestServer(unittest.TestCase):
                                              mock.call.listen(5),
                                              mock.call.accept(),
                                              mock.call.close()])
-        self.assertEqual(tasks_queue.mock_calls, [mock.call.put(("test url", client))])
+        self.assertEqual(tasks_queue.mock_calls,
+                         [mock.call.put(("test url", client))])
         self.assertEqual(time_time_mock.mock_calls, [mock.call(),
                                                      mock.call(),
                                                      mock.call()])
         self.assertEqual(time_sleep_mock.mock_calls, [mock.call(1)])
 
-        self.assertEqual(print_mock.mock_calls[0:5], [mock.call("WAITING..."),
-                                                      mock.call("ACCEPTED"),
-                                                      mock.call("server: connection from", "address"),
-                                                      mock.call("KeyboardInterrupt in Server"),
-                                                      mock.call("Finishing tasks...")])
+        self.assertEqual(print_mock.mock_calls[0:5],
+                         [mock.call("WAITING..."),
+                          mock.call("ACCEPTED"),
+                          mock.call("server: connection from", "address"),
+                          mock.call("KeyboardInterrupt in Server"),
+                          mock.call("Finishing tasks...")])
         self.assertEqual(print_mock.call_count, 6)
 
 

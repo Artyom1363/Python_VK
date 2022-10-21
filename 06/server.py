@@ -46,10 +46,9 @@ class CustomHTMLParser(HTMLParser):
         counter = Counter(self.words)
         return dict(counter.most_common(quantity))
 
-    @staticmethod
-    def get_most_common_all(quantity=10):
-        counter = Counter(CustomHTMLParser.common_words)
-        return dict(counter.most_common(quantity))
+    @classmethod
+    def get_stat(cls):
+        return cls.number_of_calls
 
 
 def fetch_url(url):
@@ -60,13 +59,14 @@ def fetch_url(url):
 def get_urls(queue_, lock):
     while running:
         try:
-            url, client = queue_.get(timeout=1)
+            url, client = queue_.get(timeout=5)
             # print(f"Got task from Queue, rest of tasks: COUNT {queue_.qsize()}\n", end="")
             try:
                 result = fetch_url(url)
                 html_parser = CustomHTMLParser()
                 html_parser.feed_with_counter(result, lock)
                 most_common_words = html_parser.get_most_common(5)
+
                 # print(f" words: {most_common_words}")
             except Exception:
                 answer_to_client = "Error, url was not fetched"
@@ -77,6 +77,7 @@ def get_urls(queue_, lock):
                 answer_to_client = url + ": " + str(most_common_words)
                 # print("Everything good!", f"{answer_to_client=}")
                 client.send(answer_to_client.encode())
+                print("Server statistics: ", f" server processed {html_parser.get_stat()} times!")
             finally:
                 # print("finally in get urls")
                 queue_.task_done()

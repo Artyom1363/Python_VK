@@ -12,14 +12,12 @@ class TestCustomHTMLParser(unittest.TestCase):
 
         with open("religion_wiki.html", "r") as file:
             self.data_religion = file.read()
-            # print("data: ", self.data)
 
     def test_custom_html_parser(self):
         lock = threading.Lock()
         parser = CustomHTMLParser(lock, 5)
         parser.feed(self.data_python)
         most_common_words = parser.get_most_common()
-        # print(most_common_words)
         self.assertEqual(len(most_common_words), 5)
         self.assertEqual(most_common_words["Python"], 453)
         self.assertEqual(most_common_words['и'], 342)
@@ -30,7 +28,6 @@ class TestCustomHTMLParser(unittest.TestCase):
         parser = CustomHTMLParser(lock, 5)
         parser.feed(self.data_religion)
         most_common_words = parser.get_most_common()
-        # print(most_common_words)
         self.assertEqual(len(most_common_words), 5)
         self.assertEqual(most_common_words['и'], 381)
         self.assertEqual(most_common_words['в'], 240)
@@ -45,7 +42,6 @@ class TestGetUrls(unittest.TestCase):
 
     @mock.patch("server.print")
     def test_process_tasks(self, print_mock):
-        # tasks_queue.get = mock.Mock()
         url = 'url'
 
         client = mock.Mock()

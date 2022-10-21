@@ -72,13 +72,11 @@ def process_tasks(tasks, manager, parser):
     while manager.is_on():
         try:
             url, client = tasks.get(timeout=5)
-            # print(f"Got task from Queue, rest of tasks: COUNT {queue_.qsize()}\n", end="")
             try:
                 result = fetch_url(url)
                 parser.feed(result)
                 most_common_words = parser.get_most_common()
 
-                # print(f" words: {most_common_words}")
             except Exception:
                 answer_to_client = "Error, url was not fetched"
                 client.send(answer_to_client.encode())

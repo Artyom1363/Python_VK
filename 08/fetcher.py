@@ -1,4 +1,5 @@
 import asyncio
+import argparse
 import aiohttp
 import aiofiles
 
@@ -56,6 +57,24 @@ async def batch_fetch(filename, workers_count=5, queue_size=10):
     print(f"{statistics.total=}")
 
 
+def create_argparser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', dest='workers', metavar='workers', type=int)
+    parser.add_argument(dest='args', metavar='filename', nargs='+')
+    return parser
+
+
 if __name__ == "__main__":
+    arg_parser = create_argparser()
+    arg_namespace = arg_parser.parse_args()
+    if vars(arg_namespace)["workers"] is not None:
+        workers_num = vars(arg_namespace)["workers"]
+        filename_with_urls = vars(arg_namespace)["args"][0]
+    else:
+        workers_num, filename_with_urls = vars(arg_namespace)["args"]
+        workers_num = int(workers_num)
+
+    # print(f"{workers_num=}, {filename}")
+
     loop = asyncio.get_event_loop()
-    asyncio.run(batch_fetch("urls.txt"))
+    asyncio.run(batch_fetch("urls.txt", workers_num, filename_with_urls))

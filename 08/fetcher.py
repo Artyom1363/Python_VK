@@ -10,10 +10,6 @@ class Counter:
         self.bad = 0
 
 
-# def exception_handler(loop, context):
-#     print("exception_handler was called")
-
-
 async def fetch(queue, session, stat):
 
     while True:
@@ -22,7 +18,7 @@ async def fetch(queue, session, stat):
         try:
             async with session.get(url) as resp:
 
-                print("reading url...")
+                print(f"Fetch url... status: {resp.status}")
                 if resp.status == 200:
                     stat.good += 1
                 else:
@@ -35,7 +31,7 @@ async def fetch(queue, session, stat):
 async def filling_queue(queue, filename):
     async with aiofiles.open(filename, "r") as file:
         async for line in file:
-            print(line, type(line))
+            # print(line, type(line))
             await queue.put(line)
 
 
@@ -57,12 +53,9 @@ async def batch_fetch(filename, workers_count=5, queue_size=10):
             worker.cancel()
 
     print(f"{statistics.good=}")
+    print(f"{statistics.total=}")
 
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    # loop.set_exception_handler(exception_handler)
-    # task =
     asyncio.run(batch_fetch("urls.txt"))
-    # loop.run_forever()
-    # print(counter)

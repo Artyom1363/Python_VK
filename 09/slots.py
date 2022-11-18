@@ -1,29 +1,21 @@
-import weakref
 import time
+from profile_decorator import profile_deco
 
 
 class Window:
     pass
-    # def __init__(self, flat):
-    #     self.flat = weakref.ref(flat)
 
 
 class Floor:
     pass
-    # def __init__(self, flat):
-    #     self.flat = weakref.ref(flat)
 
 
 class Room:
     pass
-    # def __init__(self, flat):
-    #     self.flat = weakref.ref(flat)
 
 
 class Door:
     pass
-    # def __init__(self, flat):
-    #     self.flat = weakref.ref(flat)
 
 
 class Flat:
@@ -36,16 +28,16 @@ class Flat:
         self.door = door
 
 
+@profile_deco
 def run():
-    N = 2_000_000
+    times_of_run = 2_000_000
 
     all_windows = []
     all_floors = []
     all_rooms = []
     all_doors = []
-    flats = []
 
-    for _ in range(N):
+    for _ in range(times_of_run):
         all_windows.append(Window())
         all_floors.append(Floor())
         all_rooms.append(Room())
@@ -53,14 +45,15 @@ def run():
 
     time_1 = time.time()
 
-    for i in range(N):
-        flat = Flat(all_windows[i], all_floors[i], all_rooms[i], all_doors[i])
-        flats.append(flat)
+    flats = [Flat(all_windows[i], all_floors[i], all_rooms[i], all_doors[i])
+             for i in range(times_of_run)
+             ]
 
     time_2 = time.time()
-    print(f"time of creating {N} objects --- {time_2 - time_1} seconds ---")
+    print(f"time of creating {times_of_run} objects "
+          f"--- {time_2 - time_1} seconds ---")
 
-    for i in range(N):
+    for i in range(times_of_run):
         if flats[i].floor is not None:
             pass
 
@@ -74,25 +67,28 @@ def run():
             pass
 
     time_3 = time.time()
-    print(f"time of access to {N} objects --- {time_3 - time_2} seconds ---")
+    print(f"time of access to {times_of_run} objects "
+          f"--- {time_3 - time_2} seconds ---")
 
-    for i in range(N):
+    for i in range(times_of_run):
         flats[i].floor = all_floors[i - 1]
         flats[i].windows = all_windows[i - 1]
         flats[i].rooms = all_rooms[i - 1]
         flats[i].door = all_doors[i - 1]
 
     time_4 = time.time()
-    print(f"time of modifying {N} objects --- {time_4 - time_3} seconds ---")
+    print(f"time of modifying {times_of_run} objects "
+          f"--- {time_4 - time_3} seconds ---")
 
-    for i in range(N):
+    for i in range(times_of_run):
         del flats[i].floor
         del flats[i].windows
         del flats[i].rooms
         del flats[i].door
 
     time_5 = time.time()
-    print(f"time of deleting {N} objects --- {time_5 - time_4} seconds ---")
+    print(f"time of deleting {times_of_run} objects "
+          f"--- {time_5 - time_4} seconds ---")
 
 
 if __name__ == '__main__':

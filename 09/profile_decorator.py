@@ -1,4 +1,6 @@
-import cProfile, pstats, io
+import cProfile
+import pstats
+import io
 
 
 def profile_deco(func):
@@ -8,16 +10,17 @@ def profile_deco(func):
             print(self.stat)
 
         def __call__(self, *args, **kwargs):
-            pr = cProfile.Profile()
-            pr.enable()
+            profile = cProfile.Profile()
+            profile.enable()
             result = func()
-            pr.disable()
+            profile.disable()
 
-            s = io.StringIO()
+            stream = io.StringIO()
             sortby = "cumulative"
-            ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-            ps.print_stats()
-            self.stat = s.getvalue()
-            # print()
+            stats = pstats.Stats(profile, stream=stream).sort_stats(sortby)
+            stats.print_stats()
+            self.stat = stream.getvalue()
+
             return result
+
     return Wrapper()

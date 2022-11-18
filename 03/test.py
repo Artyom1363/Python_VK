@@ -10,7 +10,17 @@ class TestCustomList(unittest.TestCase):
         self.array = CustomList([1, 2, 3])
 
     def test_adding_list(self):
-        self.assertEqual(self.array + [1, 2], CustomList([2, 4, 3]))
+        array2 = CustomList([1, 2])
+        self.assertEqual(self.array + array2, CustomList([2, 4, 3]))
+        self.assertEqual(len(self.array), 3)
+
+        for a, b in zip(self.array, CustomList([1, 2, 3])):
+            self.assertEqual(a, b)
+
+        self.assertEqual(len(array2), 2)
+        for a, b in zip(array2, CustomList([1, 2])):
+            self.assertEqual(a, b)
+
         self.assertEqual([1, 2] + self.array, CustomList([2, 4, 3]))
         self.assertEqual(self.array + [1, 2, 3, 4], CustomList([2, 4, 6, 4]))
         self.assertEqual([1, 2, 3, 4] + self.array, CustomList([2, 4, 6, 4]))
@@ -18,7 +28,17 @@ class TestCustomList(unittest.TestCase):
         self.assertEqual([] + self.array, self.array)
 
     def test_subtraction(self):
-        self.assertEqual(self.array - [1, 2], CustomList([0, 0, 3]))
+        array2 = CustomList([1, 2])
+        self.assertEqual(self.array - array2, CustomList([0, 0, 3]))
+        self.assertEqual(len(self.array), 3)
+
+        for a, b in zip(self.array, CustomList([1, 2, 3])):
+            self.assertEqual(a, b)
+
+        self.assertEqual(len(array2), 2)
+        for a, b in zip(array2, CustomList([1, 2])):
+            self.assertEqual(a, b)
+
         self.assertEqual([1, 2] - self.array, CustomList([0, 0, -3]))
         self.assertEqual(self.array - [1, 2, 3, 4], CustomList([0, 0, 0, -4]))
         self.assertEqual([1, 2, 3, 4] - self.array, CustomList([0, 0, 0, 4]))

@@ -29,7 +29,7 @@ class Flat:
 
 @profile_deco
 def run():
-    times_of_run = 2_000_000
+    times_of_run = 200_000
 
     all_windows = []
     all_floors = []
@@ -92,3 +92,4 @@ def run():
 
 if __name__ == '__main__':
     run()
+    run.print_stat()

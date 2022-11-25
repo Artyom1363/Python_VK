@@ -7,6 +7,10 @@ from html.parser import HTMLParser
 from urllib.request import urlopen
 from collections import Counter
 from nltk.tokenize import RegexpTokenizer
+from worker_state import WorkerState
+
+
+QUEUE_MAX_SIZE = 10
 
 
 class CustomHTMLParser(HTMLParser):
@@ -49,20 +53,6 @@ class CustomHTMLParser(HTMLParser):
         pass
 
 
-class WorkerState:
-    def __init__(self, state: bool):
-        self.state = state
-
-    def is_on(self):
-        return self.state
-
-    def turn_on(self):
-        self.state = True
-
-    def turn_off(self):
-        self.state = False
-
-
 def fetch_url(url):
     with urlopen(url) as data:
         return data.read().decode()
@@ -86,7 +76,8 @@ def process_tasks(tasks, manager, parser):
                 answer_to_client = url + ": " + str(most_common_words)
                 client.send(answer_to_client.encode())
 
-                print("Server statistics: ", f" server processed {parser.get_stat()} times!")
+                print("Server statistics: ",
+                      f" server processed {parser.get_stat()} times!")
             finally:
                 tasks.task_done()
 
@@ -127,7 +118,8 @@ def server(tasks):
 
 def create_argparser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-w', dest='workers', metavar='workers', type=int, required=True)
+    parser.add_argument('-w', dest='workers', metavar='workers',
+                        type=int, required=True)
     parser.add_argument('-k', dest='most_common_num', metavar='most common',
                         type=int, required=True)
     return parser
@@ -138,12 +130,13 @@ if __name__ == "__main__":
     arg_namespace = arg_parser.parse_args()
     workers_num = arg_namespace.workers
     most_common_num = arg_namespace.most_common_num
-    tasks_queue = Queue()
+    tasks_queue = Queue(maxsize=QUEUE_MAX_SIZE)
     lock = threading.Lock()
     worker_state = WorkerState(True)
     html_parser = CustomHTMLParser(lock, most_common_num)
     threads = [
-        threading.Thread(target=process_tasks, name=f"server_thread_{worker_num}",
+        threading.Thread(target=process_tasks,
+                         name=f"server_thread_{worker_num}",
                          args=(tasks_queue, worker_state, html_parser))
         for worker_num in range(workers_num)
     ]

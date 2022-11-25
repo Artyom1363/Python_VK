@@ -50,6 +50,21 @@ class TestLRUCache(unittest.TestCase):
         lru["3"] = 3
         self.assertEqual(lru.size, 2)
         self.assertEqual(lru.dict_storage["2"].value, ("2", 2))
+        self.assertEqual(lru.dict_storage["3"].value, ("3", 3))
+
+        lru["2"] = 20
+        lru["4"] = 4
+        self.assertEqual(lru.size, 2)
+        self.assertEqual(lru.dict_storage["2"].value, ("2", 20))
+        self.assertEqual(lru.dict_storage["4"].value, ("4", 4))
+
+        lru = LRUCache(max_size=1)
+        lru["1"] = 1
+        self.assertEqual(lru.size, 1)
+        self.assertEqual(lru.dict_storage["1"].value, ("1", 1))
+        lru["2"] = 2
+        self.assertEqual(lru.size, 1)
+        self.assertEqual(lru.dict_storage["2"].value, ("2", 2))
 
     def test_from_example(self):
         cache = LRUCache(2)

@@ -81,9 +81,10 @@ class LRUCache:
             node = self.dict_storage[key]
             node.value = (key, value)
             self.list_storage.move_up(node)
-        else:
-            node = self.list_storage.push_front((key, value))
-            self.dict_storage[key] = node
+            return
+
+        node = self.list_storage.push_front((key, value))
+        self.dict_storage[key] = node
 
         if self.size == self.max_size:
             node = self.list_storage.pop_back()

@@ -12,33 +12,40 @@ class Data:
     name = String('name_')
     price = PositiveInteger("price_")
 
-    def __init__(self, num_, name_, price_):
+    def __init__(self, num_=-1, name_="name", price_=1):
         self.num = num_
         self.name = name_
         self.price = price_
 
 
 class TestDescriptors(unittest.TestCase):
-    def setUp(self) -> None:
-        pass
 
     def test_validate_input(self):
-        with self.assertRaises(ValueError):
-            Data("1", "1", 1)
+        Data()
+        with self.assertRaises(ValueError, ):
+            Data(num_="1")
 
         with self.assertRaises(ValueError):
-            Data(-1, 1, 1)
+            Data(name_=1)
 
         with self.assertRaises(ValueError):
-            Data(-1, "1", -1)
+            Data(price_=-1)
 
         data = Data(-1, "1", 1)
         self.assertEqual(data.num, -1)
         self.assertEqual(data.name, "1")
         self.assertEqual(data.price, 1)
 
-    def tearDown(self) -> None:
-        pass
+    def test_change_values(self):
+        data = Data()
+        with self.assertRaises(ValueError):
+            data.num = "1"
+
+        with self.assertRaises(ValueError):
+            data.name = 1
+
+        with self.assertRaises(ValueError):
+            data.name = -1
 
 
 if __name__ == '__main__':

@@ -47,6 +47,10 @@ class TestDescriptors(unittest.TestCase):
         with self.assertRaises(ValueError):
             data.name = -1
 
+        self.assertEqual(data.num, -1)
+        self.assertEqual(data.name, "name")
+        self.assertEqual(data.price, 1)
+
 
 if __name__ == '__main__':
     unittest.main()

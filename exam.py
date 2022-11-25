@@ -2,16 +2,15 @@ import threading
 import argparse
 
 
-def fact(value, result):
-    if value == 1:
+def fact(value):
+    if value == 0:
         return 1
+    return value * fact(value - 1)
 
-    result[value] = value * fact(value - 1, result)
-    return result[value]
 
-# def fact_wrapper(num, result):
-#     value = fact(num)
-#     result[num] = value
+def fact_wrapper(num, result):
+    value = fact(num)
+    result[num] = value
 
 
 def create_argparser():
@@ -27,7 +26,7 @@ if __name__ == "__main__":
     value_to_calc = arg_namespace.value
     print(f"{value_to_calc=}")
     result_fact = {}
-    thread = threading.Thread(target=fact,
+    thread = threading.Thread(target=fact_wrapper,
                               name="fact_1",
                               args=(value_to_calc, result_fact))
 

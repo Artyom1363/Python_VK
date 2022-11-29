@@ -24,6 +24,10 @@ async def fetch(queue, session, stat):
                     stat.good += 1
                 else:
                     stat.bad += 1
+
+        except Exception:
+            pass
+
         finally:
             stat.total += 1
             queue.task_done()
@@ -77,4 +81,4 @@ if __name__ == "__main__":
     # print(f"{workers_num=}, {filename}")
 
     loop = asyncio.get_event_loop()
-    asyncio.run(batch_fetch("urls.txt", workers_num, filename_with_urls))
+    asyncio.run(batch_fetch(filename_with_urls, workers_num, 10))

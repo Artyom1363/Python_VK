@@ -10,7 +10,7 @@ from nltk.tokenize import RegexpTokenizer
 from worker_state import WorkerState
 
 
-QUEUE_MAX_SIZE = 10
+QUEUE_MIN_SIZE = 10
 
 
 class CustomHTMLParser(HTMLParser):
@@ -125,19 +125,15 @@ def create_argparser():
     return parser
 
 
-if __name__ == "__main__":
-    arg_parser = create_argparser()
-    arg_namespace = arg_parser.parse_args()
-    workers_num = arg_namespace.workers
-    most_common_num = arg_namespace.most_common_num
-    tasks_queue = Queue(maxsize=QUEUE_MAX_SIZE)
-    lock = threading.Lock()
+def batch_fetch(worker_count, parser):
+    tasks_queue = Queue(maxsize=max(QUEUE_MIN_SIZE, worker_count * 2))
+
     worker_state = WorkerState(True)
-    html_parser = CustomHTMLParser(lock, most_common_num)
+
     threads = [
         threading.Thread(target=process_tasks,
                          name=f"server_thread_{worker_num}",
-                         args=(tasks_queue, worker_state, html_parser))
+                         args=(tasks_queue, worker_state, parser))
         for worker_num in range(workers_num)
     ]
     for thread in threads:
@@ -145,3 +141,16 @@ if __name__ == "__main__":
 
     server(tasks_queue)
     worker_state.turn_off()
+
+    for thread in threads:
+        thread.join()
+
+
+if __name__ == "__main__":
+    arg_parser = create_argparser()
+    arg_namespace = arg_parser.parse_args()
+    workers_num = arg_namespace.workers
+    most_common_num = arg_namespace.most_common_num
+    lock = threading.Lock()
+    html_parser = CustomHTMLParser(lock, most_common_num)
+    batch_fetch(workers_num, html_parser)
